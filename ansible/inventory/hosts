@@ -9,9 +9,9 @@ okd-311-master-2.local
 okd-311-master-3.local
  
 [nodes]
-okd-311-master-1.local openshift_node_group_name="node-config-master-infra"
-okd-311-master-2.local openshift_node_group_name="node-config-master-infra"
-okd-311-master-3.local openshift_node_group_name="node-config-master-infra"
+okd-311-master-1.local openshift_node_group_name="node-config-all-in-one"
+okd-311-master-2.local openshift_node_group_name="node-config-all-in-one"
+okd-311-master-3.local openshift_node_group_name="node-config-all-in-one"
 
 [etcd]
 okd-311-master-1.local
