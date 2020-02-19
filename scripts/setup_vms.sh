@@ -1,5 +1,18 @@
 #!/bin/sh
 
+# Edit for your own use. You will need to pull the centos 7 generic cloud image
+# from http://cloud.centos.org/centos/7/images/ and update CENTOS_IMAGE with the
+# path.
+#
+# The VMs are deployed with avahi-daemon installed and enabled so you can use
+# mdns to connect to them. 
+#
+# Update BRIDGE to virbr0 if you are running this locally on your laptop and you
+# don't intend to connect from an external source. Otherwise ensure you have setup
+# bridge networking on your external interface.
+#
+# For the master VMs, 3 additional disks are created to be used for glusterfs storage.
+
 STORAGE_POOL_ROOT=/var/lib/libvirt/images
 BRIDGE=bridge0
 DOMAIN=local
