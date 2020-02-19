@@ -10,8 +10,6 @@
 # Update BRIDGE to virbr0 if you are running this locally on your laptop and you
 # don't intend to connect from an external source. Otherwise ensure you have setup
 # bridge networking on your external interface.
-#
-# For the master VMs, 3 additional disks are created to be used for glusterfs storage.
 
 STORAGE_POOL_ROOT=/var/lib/libvirt/images
 BRIDGE=bridge0
@@ -20,10 +18,11 @@ TIMEZONE=Europe/London
 SSH_KEY=$( cat ~/.ssh/id_rsa.pub )
 CENTOS_IMAGE=/data/vm_images/CentOS-7-x86_64-GenericCloud.qcow2
 OKD_VM_MEMORY=4096
-OKD_VM_VCPU=2
-OKD_GLUSTERFS_DISKSIZE=20G
+OKD_VM_VCPU=4
+OKD_DISKSIZE=40G
 LB_VM_MEMORY=1024
 LB_VM_VCPU=1
+LB_DISKSIZE=24G
 MASTERS="okd-311-master-1 okd-311-master-2 okd-311-master-3"
 LOAD_BALANCER="okd-311-lb"
 
@@ -76,42 +75,17 @@ create_base_disk() {
   virt-resize --expand /dev/sda1 ${CENTOS_IMAGE} ${STORAGE_POOL_DIR}/${VM}-vda.qcow2
 }
 
-create_glusterfs_disk() {
-  echo "Setting up glusterfs disks for ${VM}"
-  for DISK in vdb vdc vdd
-  do
-    qemu-img create -f qcow2 -o preallocation=metadata ${STORAGE_POOL_DIR}/${VM}-${DISK}.qcow2 ${OKD_GLUSTERFS_DISKSIZE}
-  done
-}
-
 create_storage_pool() {
   echo "Setting up storage pool for ${VM}"
   cd ${STORAGE_POOL_DIR}
   virsh pool-create-as --name ${VM} --type dir --target /var/lib/libvirt/images/${VM}
 }
 
-create_okd_vm() {
+create_vm() {
   echo "Setting up virtual machine ${VM}"
   cd ${STORAGE_POOL_DIR}
   virt-install --import --name ${VM} \
-  --memory ${OKD_VM_MEMORY} --vcpus ${OKD_VM_VCPU} --cpu host \
-  --disk ${VM}-vda.qcow2,format=qcow2,bus=virtio \
-  --disk ${VM}-vdb.qcow2,format=qcow2,bus=virtio \
-  --disk ${VM}-vdc.qcow2,format=qcow2,bus=virtio \
-  --disk ${VM}-vdd.qcow2,format=qcow2,bus=virtio \
-  --disk ${VM}-config.iso,device=cdrom \
-  --network bridge=${BRIDGE},model=virtio \
-  --os-type=linux \
-  --os-variant=centos7.0 \
-  --graphics none \
-  --noautoconsole
-}
-
-create_lb_vm() {
-  echo "Setting up virtual machine ${VM}"
-  cd ${STORAGE_POOL_DIR}
-  virt-install --import --name $VM \
-  --memory ${LB_VM_MEMORY} --vcpus ${LB_VM_VCPU} --cpu host \
+  --memory ${VM_MEMORY} --vcpus ${VM_VCPU} --cpu host \
   --disk ${VM}-vda.qcow2,format=qcow2,bus=virtio \
   --disk ${VM}-config.iso,device=cdrom \
   --network bridge=${BRIDGE},model=virtio \
@@ -124,23 +98,26 @@ create_lb_vm() {
 for VM in ${MASTERS}
 do
   STORAGE_POOL_DIR=${STORAGE_POOL_ROOT}/${VM}
-  ROOT_DISKSIZE=40G
+  ROOT_DISKSIZE=${OKD_DISKSIZE}
+  VM_MEMORY=${OKD_VM_MEMORY}
+  VM_VCPU=${OKD_VM_VCPU}
   create_storage_pool_dir
   create_cloud_init
   create_base_disk
-  create_glusterfs_disk
   create_storage_pool
-  create_okd_vm
+  create_vm
 done
 
 for VM in ${LOAD_BALANCER}
 do
   STORAGE_POOL_DIR=${STORAGE_POOL_ROOT}/${VM}
-  ROOT_DISKSIZE=20G
+  ROOT_DISKSIZE=${LB_DISKSIZE}
+  VM_MEMORY=${LB_VM_MEMORY}
+  VM_VCPU=${LB_VM_VCPU}
   create_storage_pool_dir
   create_cloud_init
   create_base_disk
   create_storage_pool
-  create_lb_vm
+  create_vm
 done
 

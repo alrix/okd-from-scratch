@@ -18,11 +18,6 @@ okd-311-master-1.local
 okd-311-master-2.local
 okd-311-master-3.local
 
-[glusterfs]
-okd-311-master-1.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
-okd-311-master-2.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
-okd-311-master-3.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
-
 [lb]
 okd-311-lb.local
 
@@ -36,7 +31,6 @@ nodes
 etcd
 lb
 nfs
-glusterfs
 
 [OSEv3:vars]
 openshift_disable_check=disk_availability,memory_availability
@@ -72,7 +66,4 @@ template_service_broker_install=false
 ansible_service_broker_install=false
 openshift_console_install=false
 openshift_enable_service_catalog=false
-
-
-
 

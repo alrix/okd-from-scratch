@@ -2,7 +2,7 @@ Simple ansible playbooks, roles and scripts to prepare a basic Openshift cluster
 
 The cluster comprises of: 
 
-* 3 master nodes running openshift + glusterfs
+* 3 master nodes running openshift
 * 1 load balancer running HA Proxy + nfs
 
 Nodes are running centos 7 and Openshift 3.11
