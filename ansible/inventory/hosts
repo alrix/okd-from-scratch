@@ -47,7 +47,7 @@ ansible_become=true
 openshift_deployment_type=origin
 
 # Default subdomain for exposed routes. 
-openshift_master_default_subdomain=apps.okd-311-lb.local
+openshift_master_default_subdomain=apps.okd-311.local
 
 # Setup Load Balancer
 openshift_master_cluster_method=native
