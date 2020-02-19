@@ -1,0 +1,7 @@
+- name: reboot server
+  become: yes
+  reboot:
+    pre_reboot_delay: 0
+    post_reboot_delay: 10
+    reboot_timeout: 600
+

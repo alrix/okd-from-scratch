@@ -1,0 +1,13 @@
+debug_enabled_default: false
+update_default: true
+reboot_default: true
+server_update_reboot_pre_delay: 5
+server_update_reboot_pre_reboot_delay: 0
+server_update_reboot_post_reboot_delay: 10
+server_update_reboot_reboot_timeout: 600
+
+#server_update_yum_exclude_pkgs: "mysql*, bash, openssh*"
+server_update_yum_exclude_pkgs: []
+
+#server_update_yum_install_pkgs: "kernel-*, iwl*firmware, microcode_ctl, dracut"
+server_update_yum_install_pkgs: '*'

@@ -1,0 +1,53 @@
+#Upgrade and reboot Redhat/CentOS based servers
+- block:
+  - name: server update reboot | yum - Upgrade or Install packages
+    become: yes
+    yum:
+      name: "{{ server_update_yum_install_pkgs | default('*') }}"
+      state: latest # noqa 10
+      update_cache: yes
+      exclude: "{{ server_update_yum_exclude_pkgs | default([]) }}"
+    register: stat_yum_upgrade_results
+    until: "stat_yum_upgrade_results is success"
+    retries: 2
+    delay: 30
+    tags:
+      - skip_ansible_lint
+  rescue:
+  - name: debug yum failed
+    debug: msg='YUM Upgrade failed'
+  - meta: flush_handlers
+  - name: fail check
+    fail: msg='YUM Upgrade failed'
+  when: ansible_os_family == "RedHat" and update_default | bool
+
+- name: debug stat_yum_upgrade_results
+  debug: var=stat_yum_upgrade_results
+  when: debug_enabled_default | bool
+
+- name: server update reboot | Check if reboot is needed because kernel was upgraded
+  become: yes
+  shell: LAST_KERNEL=$(rpm -q --last kernel | awk 'NR==1{sub(/kernel-/,""); print $1}'); CURRENT_KERNEL=$(uname -r); if [ $LAST_KERNEL != $CURRENT_KERNEL ]; then echo 'reboot'; else echo 'no'; fi # noqa 204 306
+  changed_when: false
+  register: yum_reboot_hint_result
+  when: ansible_os_family == "RedHat"
+  tags:
+    - skip_ansible_lint
+
+- name: set_fact for reboot
+  set_fact:
+    reboot_hint_result: false
+  when: ansible_os_family == "RedHat" and reboot_default | bool and yum_reboot_hint_result.stdout.find("no") != -1
+
+- name: set_fact for reboot
+  set_fact:
+    reboot_hint_result: true
+  when: ansible_os_family == "RedHat" and reboot_default | bool and yum_reboot_hint_result.stdout.find("reboot") != -1
+
+- name: server update reboot | restart server
+  become: yes
+  reboot:
+    pre_reboot_delay: "{{ server_update_reboot_pre_reboot_delay }}"
+    post_reboot_delay: "{{ server_update_reboot_post_reboot_delay }}"
+    reboot_timeout: "{{ server_update_reboot_reboot_timeout }}"
+  when: reboot_default | bool and reboot_hint_result | bool

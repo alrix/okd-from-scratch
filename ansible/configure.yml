@@ -1,0 +1,8 @@
+- name: Ensure hosts are setup correctly
+  hosts: all
+  roles:
+    - { role: hosts, tags: ['core','hosts'] }
+    - { role: centos_updates, tags: ['core'] }
+    - { role: firewalld, tags: ['core','firewalld'] }
+    - { role: openshift_prereqs, tags: ['core','prereqs'] }
+

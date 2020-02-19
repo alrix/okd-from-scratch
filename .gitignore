@@ -1,0 +1,19 @@
+
+# General Ignores
+*.dll
+*.exe
+.DS_Store
+*.backup
+*.log
+*.bak
+*~
+
+# Ignores for Ansible
+.*.swp
+.idea
+*.retry
+filter_plugins/*.pyc
+*.pyc
+
+# Ignore for IDE 
+.vscode

@@ -1,0 +1,9 @@
+- name: Update /etc/hosts
+  become: yes
+  template:
+    src: _etc_hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+

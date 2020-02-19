@@ -1,0 +1,14 @@
+- name: Install openshift prereqs
+  become: yes
+  yum:
+    name:
+    - NetworkManager
+    state: present
+
+- name: Start NetworkManager service
+  become: yes
+  service:
+    name: NetworkManager
+    state: started
+    enabled: true
+  notify: reboot server

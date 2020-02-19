@@ -1,0 +1,64 @@
+- name: Install firewalld
+  become: yes
+  yum:
+    name: firewalld
+    state: present
+
+- name: start firewalld service
+  become: yes
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+  notify: reboot server
+
+- name: Allow mdns on public zone
+  become: yes
+  firewalld:
+    service: mdns
+    zone: public
+    state: enabled
+    permanent: yes
+    immediate: yes
+
+- name: Force all notified handlers to run at this point, not waiting for normal sync points
+  meta: flush_handlers
+
+- name: Set fact for all hosts
+  set_fact:
+    trusted_hosts_unformatted: "{% for host in groups['all'] %}{% if host != ansible_hostname %}{{ hostvars[host]['ansible_default_ipv4']['address'] }}{% if not loop.last %},{% endif %}{% endif %}{% endfor %}"
+
+- name: Reformat
+  set_fact:
+    trusted_hosts_reformatted: "{% if trusted_hosts_unformatted[-1] == ',' %}{{ trusted_hosts_unformatted[:-1] }}{% else %}{{ trusted_hosts_unformatted }}{% endif %}"
+
+- name: Convert to list
+  set_fact:
+    trusted_hosts: "{{ trusted_hosts_reformatted.split(',') }}"
+
+- name: Setup trusted zone with all cluster hosts
+  become: yes
+  firewalld:
+    source: "{{ item }}"
+    zone: trusted
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ trusted_hosts }}"
+
+- name: Enable external cluster access
+  become: yes
+  firewalld:
+    port: "{{ item }}"
+    zone: public
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: 
+    - "80/tcp"
+    - "443/tcp"
+    - "1936/tcp"
+    - "8443/tcp"
+    - "8444/tcp"
+  when: inventory_hostname in groups['masters']
+   
