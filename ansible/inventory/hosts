@@ -18,7 +18,15 @@ okd-311-master-1.local
 okd-311-master-2.local
 okd-311-master-3.local
 
+[glusterfs]
+okd-311-master-1.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
+okd-311-master-2.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
+okd-311-master-3.local glusterfs_devices='[ "/dev/vdb", "/dev/vdc", "/dev/vdd" ]'
+
 [lb]
+okd-311-lb.local
+
+[nfs]
 okd-311-lb.local
 
 # Create an OSEv3 group that contains the masters and nodes groups
@@ -27,6 +35,8 @@ masters
 nodes
 etcd
 lb
+nfs
+glusterfs
 
 [OSEv3:vars]
 openshift_disable_check=disk_availability,memory_availability
@@ -36,19 +46,33 @@ ansible_user=centos
 ansible_become=true
 openshift_deployment_type=origin
 
+# Default subdomain for exposed routes. 
+openshift_master_default_subdomain=apps.okd-311-lb.local
+
 # Setup Load Balancer
 openshift_master_cluster_method=native
 openshift_master_cluster_hostname=okd-311-lb.local
 openshift_master_cluster_public_hostname=okd-311-lb.local
 
+# Setup Registry
+openshift_hosted_manage_registry=true
+openshift_hosted_manage_registry_console=true
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/exports
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
 # Disable the following services
-openshift_cluster_monitoring_operator_install=false
 openshift_metrics_install_metrics=false
+openshift_cluster_monitoring_operator_install=false
 openshift_logging_install_logging=false
 template_service_broker_install=false
 ansible_service_broker_install=false
 openshift_console_install=false
 openshift_enable_service_catalog=false
+
 
 
 
