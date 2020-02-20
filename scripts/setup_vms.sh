@@ -78,7 +78,7 @@ create_base_disk() {
 create_storage_pool() {
   echo "Setting up storage pool for ${VM}"
   cd ${STORAGE_POOL_DIR}
-  virsh pool-create-as --name ${VM} --type dir --target /var/lib/libvirt/images/${VM}
+  virsh pool-create-as --name ${VM} --type dir --target ${STORAGE_POOL_DIR}
 }
 
 create_vm() {
