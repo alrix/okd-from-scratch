@@ -11,18 +11,18 @@
 # don't intend to connect from an external source. Otherwise ensure you have setup
 # bridge networking on your external interface.
 
-STORAGE_POOL_ROOT=/var/lib/libvirt/images
-BRIDGE=bridge0
+STORAGE_POOL_ROOT=/data/libvirt/images
+BRIDGE=virbr0
 DOMAIN=local
 TIMEZONE=Europe/London
 SSH_KEY=$( cat ~/.ssh/id_rsa.pub )
 CENTOS_IMAGE=/data/vm_images/CentOS-7-x86_64-GenericCloud.qcow2
 OKD_VM_MEMORY=4096
-OKD_VM_VCPU=4
-OKD_DISKSIZE=40G
+OKD_VM_VCPU=2
+OKD_DISKSIZE=10G
 LB_VM_MEMORY=1024
 LB_VM_VCPU=1
-LB_DISKSIZE=24G
+LB_DISKSIZE=10G
 MASTERS="okd-311-master-1 okd-311-master-2 okd-311-master-3"
 LOAD_BALANCER="okd-311-lb"
 

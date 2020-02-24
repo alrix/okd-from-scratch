@@ -12,3 +12,10 @@
     state: started
     enabled: true
   notify: reboot server
+
+# Clean up yum cache to keep disk space usage down
+- name: Clean up yum cache
+  become: yes
+  command: yum clean all
+  args:
+    warn: no
